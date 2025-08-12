@@ -1,0 +1,51 @@
+# Byte-compiled / cache files
+__pycache__/
+
+# Distribution / packaging
+dist/
+build/
+*.whl
+
+# Pytest cache
+.pytest_cache/
+.cache/
+.benchmarks/
+
+# Coverage
+htmlcov/
+coverage.xml
+*.cover
+*.py,cover
+.cache
+
+# Sphinx
+docs/_build/
+docs/generated/
+
+# macOS & Linux & Windows junk
+.DS_Store
+Thumbs.db
+*.swp
+*.DS_Store
+
+# Docker
+*.log
+docker-compose.override.yml
+.env.local
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+.git
+.gitignore
+logs/
+.logs/
+*.egg-info/
+*.DS_Store
+CONTRIBUTING.md
+DISCLAIMER.md
+docs/
+tests/
+examples/
+.env

@@ -1,0 +1,5 @@
+furo
+sphinx
+sphinx-autodoc-typehints
+sphinxcontrib-mermaid
+myst-parser
