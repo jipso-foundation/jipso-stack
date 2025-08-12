@@ -89,10 +89,10 @@ class Status:
         'ROLE_USER': 'user',
         'ROLE_SYSTEM': 'system',
       }[self.response.get('role', 'ROLE_ASSISTANT')]
-      if 'reasoning_content' in self.response and not self.response['reasoning_content']:
+      if 'reasoning_content' in self.response and self.response['reasoning_content']:
         item = Message(type='thinking', content=self.response['reasoning_content'], role=role, model=self.model)
         res.append(item)
-      if 'content' in self.response and not self.response['content']:
+      if 'content' in self.response and self.response['content']:
         item = Message(type='txt', content=self.response['content'], role=role, model=self.model)
         res.append(item)
     return res

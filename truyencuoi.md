@@ -1,0 +1,1 @@
+Anh kỹ sư đang thuyết trình thì nhận ra quần bị rách toang sau lưng. Cả hội trường im lặng, anh cười: "Thiết kế của tôi luôn có điểm đột phá!"

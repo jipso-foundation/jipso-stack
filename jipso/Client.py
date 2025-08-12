@@ -4,6 +4,22 @@ from os import getenv
 load_dotenv()
 
 
+def Client(platform):
+  return {
+    'Openai': ClientOpenai,
+    'Anthropic': ClientAnthropic,
+    'Gemini': ClientGemini,
+    'Xai': ClientXai,
+    'Alibabacloud': ClientAlibabacloud,
+    'Byteplus': ClientByteplus,
+    'Sberbank': ClientSberbank,
+    'Tencentcloud': ClientTencentcloud,
+    'CloudHuggingface': ClientCloudHuggingface,
+    'LocalHuggingface': ClientLocalHuggingface,
+    'Ollama': ClientOllama,
+  }[platform]
+
+
 def ClientOpenai(api_key:str=None, **kwargs):
   from openai import OpenAI
   return OpenAI(

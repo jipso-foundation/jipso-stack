@@ -192,11 +192,7 @@ class Conversation:
     if self.platform is None:
       if self.j is not None:
         self.platform = get_platform(self.j)
-      else:
-        from dotenv import load_dotenv
-        load_dotenv()
-        return os.getenv('DEFAULT_PLATFORM', 'Openai')
-      
+
   def render(self, platform=None, model=None):
     if not self: return []
     self.set_platform(platform=platform, model=model)
@@ -222,7 +218,7 @@ class Conversation:
         if c:
           if r == 'user':
             mess.append(user(c))
-          elif r == 'assistnant':
+          elif r == 'assistant':
             mess.append(assistant(c))
       return mess
 

@@ -1,12 +1,13 @@
 from jipso.utils import sql_create, mongo_save
 from jipso.Status import Status
 from jipso.Output import Output
-from jipso.utils import get_platform, get_client, get_str, mongo_save
+from jipso.utils import get_platform, get_str, mongo_save
+from jipso.Client import Client
 from sqlalchemy import Column, String
 from sqlalchemy.orm import declarative_base
 from uuid import uuid4
 from jipso.Conversation import Conversation
-
+import os
 
 Base = declarative_base()
 
@@ -54,10 +55,20 @@ class Compute:
     if s: self.s = s
     if o: self.o = o
     if j is None:
+      from jipso.utils import default_model
       from dotenv import load_dotenv
       from os import getenv
       load_dotenv()
-      j = getenv('DEFAUT_MODEL', 'gpt-3.5-turbo')
+      if getenv('OPENAI_API_KEY') is not None:
+        j = default_model['chatgpt']
+      elif getenv('ANTHROPIC_API_KEY') is not None:
+        j = default_model['claude']
+      elif getenv('GEMINI_API_KEY') is not None:
+        j = default_model['gemini']
+      elif getenv('XAI_API_KEY') is not None:
+        j = default_model['xai']
+      elif getenv('QWEN_API_KEY') is not None:
+        j = default_model['qwen']
     self.j = j
     self.param = param
 
@@ -65,7 +76,7 @@ class Compute:
 
 def _exe(model, messages, param):
   platform = get_platform(model)
-  client = get_client(platform)
+  client = Client(platform)()
   messages = messages.render(platform=platform)
 
   if platform in {'Openai', 'Alibabacloud', 'Byteplus'}:
@@ -100,16 +111,7 @@ def _exe(model, messages, param):
 
 
 def exe_sql(c):
-  messages = []
-  for e in ['i', 's', 'p']:
-    if hasattr(c, e) and getattr(c, e) is not None:
-      element = getattr(c, e)
-      for mess in element:
-        mess.content = get_str(mess.content)
-      messages.extend(element)
-  messages = Conversation(messages)
-  c.o, c.status = _exe(model=c.j, messages=messages, param=c.param)
-
+  exe(c)
   c_sql = ComputeSQL()
   for e in ['i', 'p', 's', 'status']:
     if hasattr(c, e) and getattr(c, e) is not None:
