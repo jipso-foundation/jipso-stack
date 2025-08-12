@@ -2,12 +2,12 @@ import typer
 from typing import Optional
 
 
-__version__ = '0.1.34'
+__version__ = '0.1.35'
 
 cli = typer.Typer(
   name = 'jipso',
   help = 'JIPSO Framework - AI interaction evaluation and orchestration',
-  epilog = 'For more information, visit: https://github.com/jipso-foundation/jipso-py',
+  epilog = 'For more information, visit: https://github.com/jipso-foundation/jipso-stack',
 )
 @cli.callback()
 def main(

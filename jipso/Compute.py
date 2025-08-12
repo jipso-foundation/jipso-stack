@@ -44,7 +44,7 @@ class Compute:
   for distributed computing and workflow persistence across sessions
   and platforms.
   """
-  def __init__(self, j=None, i=None, p=None, s=None, o=None):
+  def __init__(self, j=None, i=None, p=None, s=None, o=None, param={}):
     i = Conversation(i)
     p = Conversation(p)
     s = Conversation(s)
@@ -59,40 +59,65 @@ class Compute:
       load_dotenv()
       j = getenv('DEFAUT_MODEL', 'gpt-3.5-turbo')
     self.j = j
+    self.param = param
 
 
-def _exe(model, messages):
+
+def _exe(model, messages, param):
   platform = get_platform(model)
   client = get_client(platform)
-  messages = messages.request(platform=platform)
+  messages = messages.render(platform=platform)
 
   if platform in {'Openai', 'Alibabacloud', 'Byteplus'}:
     from jipso.vendor.Openai import compute_forward
-    res = compute_forward(client=client, model=model, messages=messages)
+    res = compute_forward(client=client, model=model, messages=messages, param=param)
 
   elif platform == 'Anthropic':
     from jipso.vendor.Anthropic import compute_forward
-    res = compute_forward(client=client, model=model, messages=messages, max_tokens=512)
+    if 'max_token' not in param:
+      param['max_tokens'] = 512
+    res = compute_forward(client=client, model=model, messages=messages, param=param)
 
   elif platform == 'Gemini':
     from jipso.vendor.Gemini import compute_forward
-    res = compute_forward(client=client, model=model, messages=messages)
+    res = compute_forward(client=client, model=model, messages=messages, param=param)
   
   elif platform == 'Xai':
     from jipso.vendor.Xai import compute_forward
-    res = compute_forward(client=client, model=model, messages=messages)
+    res = compute_forward(client=client, model=model, messages=messages, param=param)
 
   elif platform == 'Sberbank':
     from jipso.vendor.Sberbank import compute_forward
-    res = compute_forward(client=client, model=model, messages=messages)
+    res = compute_forward(client=client, model=model, messages=messages, param=param)
 
   elif platform == 'Tencentcloud':
     from jipso.vendor.Tencentcloud import compute_forward
-    res = compute_forward(client=client, model=model, messages=messages)
+    res = compute_forward(client=client, model=model, messages=messages, param=param)
 
   status = Status(response=res)
   output = Output(status.content())
   return output, status
+
+
+def exe_sql(c):
+  messages = []
+  for e in ['i', 's', 'p']:
+    if hasattr(c, e) and getattr(c, e) is not None:
+      element = getattr(c, e)
+      for mess in element:
+        mess.content = get_str(mess.content)
+      messages.extend(element)
+  messages = Conversation(messages)
+  c.o, c.status = _exe(model=c.j, messages=messages, param=c.param)
+
+  c_sql = ComputeSQL()
+  for e in ['i', 'p', 's', 'status']:
+    if hasattr(c, e) and getattr(c, e) is not None:
+      setattr(c_sql, e, getattr(c, e).id)
+      mongo_save(item=getattr(c, e), collection='Conservation')
+  c_sql.j = c.j
+  c_sql.id = sql_create(item=c_sql, table=ComputeSQL)
+  return c.o
 
 
 def exe(c):
@@ -104,13 +129,5 @@ def exe(c):
         mess.content = get_str(mess.content)
       messages.extend(element)
   messages = Conversation(messages)
-  c.o, c.status = _exe(model=c.j, messages=messages)
-
-  c_sql = ComputeSQL()
-  for e in ['i', 'p', 's', 'status']:
-    if hasattr(c, e) and getattr(c, e) is not None:
-      setattr(c_sql, e, getattr(c, e).id)
-      mongo_save(item=getattr(c, e), collection='Conservation')
-  c_sql.j = c.j
-  c_sql.id = sql_create(item=c_sql, table=ComputeSQL)
+  c.o, c.status = _exe(model=c.j, messages=messages, param=c.param)
   return c.o

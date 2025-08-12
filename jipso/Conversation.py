@@ -56,12 +56,19 @@ class Conversation:
     }
     for m in self.content:
       res['content'].append(m.dict())
-    for h in ['platform', 'model']:
+    for h in ['platform', 'j']:
       if hasattr(self, h):
         res[h] = getattr(self, h)
     return res
 
   # ----------------------------------------
+
+  def __copy__(self):
+    item = Conversation(content=self.content)
+    for k,v in self.dict().items():
+      if k not in ['id', 'content']:
+        setattr(item, k, v)
+    return item
 
   def __str__(self) -> str:
     return '\n'.join([str(m) for m in self.content])
@@ -116,23 +123,55 @@ class Conversation:
           return i,m
     return None, None
 
-  def __getitem__(self, index):
-    return self.find(index)[1]
+  def __getitem__(self, key):
+    if isinstance(key, slice):
+      sliced_content = self.content[key]
+      new_conv = Conversation(content=sliced_content)
+      for k, v in self.dict().items():
+        if k not in ['id', 'content']:
+          setattr(new_conv, k, v)
+      return new_conv
+    else:
+      return self.find(key)[1]
   
-  def __setitem__(self, index, value):
-    if not self: return None
-    if isinstance(value, Conversation): return None
-    value = Message(value)
-    if not value: return None
-    index = self.find(index)[0]
-    if index is None or not isinstance(index, int): return None
-    self.content[index] = value
+  def __setitem__(self, key, value):
+    if isinstance(key, slice):
+      if not self: return None
+      if isinstance(value, Conversation):
+        new_messages = value.content
+      elif isinstance(value, (list, tuple)):
+        new_messages = []
+        for item in value:
+          if isinstance(item, Message):
+            if item:
+              new_messages.append(item)
+          else:
+            msg = Message(item)
+            if msg:
+              new_messages.append(msg)
+      else:
+        msg = Message(value)
+        new_messages = [msg] if msg else []
+      
+      self.content[key] = new_messages
+    else:
+      if not self: return None
+      if isinstance(value, Conversation): return None
+      value = Message(value)
+      if not value: return None
+      index = self.find(key)[0]
+      if index is None or not isinstance(index, int): return None
+      self.content[index] = value
 
-  def __delitem__(self, index):
-    if not self: return None
-    index = self.find(index)[0]
-    if index is None or not isinstance(index, int): return None
-    del self.content[index]
+  def __delitem__(self, key):
+    if isinstance(key, slice):
+      if not self: return None
+      del self.content[key]
+    else:
+      if not self: return None
+      index = self.find(key)[0]
+      if index is None or not isinstance(index, int): return None
+      del self.content[index]
 
   def __iter__(self):
     self._iterator_index = 0
@@ -148,25 +187,27 @@ class Conversation:
   # ----------------------------------------
 
   def set_platform(self, platform, model):
-    if model is not None: self.model = model
+    if model is not None: self.j = model
     if platform is not None: self.platform = platform
     if self.platform is None:
-      if self.model is not None:
-        self.platform = get_platform(self.model)
+      if self.j is not None:
+        self.platform = get_platform(self.j)
       else:
         from dotenv import load_dotenv
         load_dotenv()
         return os.getenv('DEFAULT_PLATFORM', 'Openai')
       
-  def request(self, platform=None, model=None):
+  def render(self, platform=None, model=None):
     if not self: return []
     self.set_platform(platform=platform, model=model)
     new_content = ['']*len(self.content)
     for k,m in enumerate(self.content):
+      m_content = m.content
       if hasattr(m, 'label') and m.label:
-        new_content[k] = f'[{m.label}] {m.content}'
-      else:
-        new_content[k] = m.content
+        m_content = f'[{m.label}] {m_content}'
+      if hasattr(m, 'model') and m.model:
+        m_content = f'[{m.model}] {m_content}'
+      new_content[k] = m_content
     zip_content = zip([m.role for m in self.content], new_content)
     if platform in {'Openai', 'Anthropic', 'Alibabacloud', 'Byteplus', 'Sberbank'}:
       return [{'role': r, 'content': c} for r,c in zip_content if c]
@@ -212,3 +253,8 @@ class Conversation:
 
   def extend(self, item):
     self.__iadd__(item)
+
+  # ----------------------------------------
+
+  def fork(self):
+    return self, self.__copy__()

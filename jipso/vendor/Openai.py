@@ -1,8 +1,8 @@
-def compute_forward(client, model, messages, *args, **kwargs):
+def compute_forward(client, model, messages, param):
   return client.chat.completions.create(
     model = model,
     messages = messages,
-    *args, **kwargs
+    **param,
   )
 
 

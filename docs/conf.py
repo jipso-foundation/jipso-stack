@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 project = 'JIPSO'
 author = 'JIPSO Foundation'
-release = '0.1.34'
+release = '0.1.35'
 
 # -- General configuration ---------------------------------------------------
 
@@ -27,7 +27,7 @@ exclude_patterns = []
 
 # -- Options for HTML output -------------------------------------------------
 
-html_title = 'jipso-py'
+html_title = 'jipso-stack'
 html_theme = 'furo'
 html_static_path = ['_static']
 html_logo = 'https://cdn.jipso.org/logo/jipso_framework.svg'

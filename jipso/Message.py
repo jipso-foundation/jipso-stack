@@ -75,6 +75,7 @@ class Message:
     return item
   
   def __str__(self) -> str:
+    from jipso.utils import COLOR
     content = self.content
     if hasattr(self, 'label'):
       content = f'[{self.label}] {content}'
@@ -82,7 +83,10 @@ class Message:
       content = f'[thinking] {content}'
     if hasattr(self, 'user'):
       content = f'[{self.user}] {content}'
-    return f'{self.role}: {content}'
+    if hasattr(self, 'model'):
+      return f'{COLOR["cyan"]}{self.model}{COLOR["reset"]}: {content}'
+    return f'{COLOR["red"]}{self.role}{COLOR["reset"]}: {content}'
+
   
   def __repr__(self) -> str:
     return f'Message({str(self)})'

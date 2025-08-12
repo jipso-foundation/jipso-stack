@@ -1,5 +1,5 @@
-def compute_forward(client, model, messages, *args, **kwargs):
-  return client.GenerativeModel(model).generate_content(messages, *args, **kwargs)
+def compute_forward(client, model, messages, param):
+  return client.GenerativeModel(model).generate_content(messages, **param)
 
 def handle_response(response):
   return {

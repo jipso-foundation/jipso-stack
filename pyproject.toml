@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "jipso"
-version = "0.1.34"
+version = "0.1.35"
 description = "JIPSO framework for prompt orchestration and comparison"
 authors = ["JIPSO Foundation <contact@jipso.org>"]
 license = "Apache-2.0"
 readme = "README.md"
 keywords = ["jipso", "ai"]
-homepage = "https://github.com/jipso-foundation/jipso-py"
-repository = "https://github.com/jipso-foundation/jipso-py"
+homepage = "https://github.com/jipso-foundation/jipso-stack"
+repository = "https://github.com/jipso-foundation/jipso-stack"
 packages = [{include = "jipso"}]
 
 [tool.poetry.dependencies]
