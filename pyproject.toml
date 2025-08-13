@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "jipso"
-version = "0.1.36"
+version = "0.1.37"
 description = "JIPSO framework for prompt orchestration and comparison"
 authors = ["JIPSO Foundation <contact@jipso.org>"]
 license = "Apache-2.0"
