@@ -1,4 +1,4 @@
-FROM python:3.12-bullseye
+FROM python:3.13-bullseye
 
 # Set environment variables for Poetry
 ENV POETRY_VERSION=1.8.2 \
